@@ -1,0 +1,26 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "src/index.js",
+            "use": "@now/node@canary",
+            "config": {
+                "maxLambdaSize": "25mb"
+            }
+        }
+    ],
+    "build": {
+        "env": {
+            "POSTGRESQL_URL": "@postgresql_url"
+        }
+    },
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "src/index.js"
+        }
+    ],
+    "env": {
+        "POSTGRESQL_URL": "@postgresql_url"
+    }
+}
