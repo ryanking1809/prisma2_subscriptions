@@ -11,7 +11,7 @@
     ],
     "build": {
         "env": {
-            "POSTGRESQL_URL": "@postgresql_url"
+            "POSTGRES_URL": "@postgres_url"
         }
     },
     "routes": [
