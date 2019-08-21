@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node src/index.js",
     "seed": "node prisma/seed.js",
-    "postinstall": "prisma2 generate"
+    "postinstall": "prisma2 generate && prisma2 lift up"
   },
   "devDependencies": {
     "graphql": "^0.13.0",
