@@ -145,5 +145,5 @@ const server = new GraphQLServer({
   },
 })
 
-server.start(() => console.log(`🚀 Server ready at http://localhost:4000`))
+server.start(() => console.log(`🚀 Server ready at http://localhost:4000x`))
 module.exports = { User, Post }
