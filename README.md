@@ -4,6 +4,13 @@ Example subscriptions based off the prisma2 boilerplate and Ben Awad's video tut
 
 ## How to use
 
+Make sure you set up a postgres database and update the environment variables in the first.
+```
+yarn start
+yarn install
+-> open localhost:4000
+```
+
 ### 1. Subscribe to new published posts
 
 ```graphql
