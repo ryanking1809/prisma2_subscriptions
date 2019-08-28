@@ -54,6 +54,7 @@ const Mutation = {
     })
   },
   publish: async (parent, { id }, context) => {
+    console.log('fire resolver')
     return context.photon.posts.update({
       where: { id },
       data: { published: true },

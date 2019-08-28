@@ -1,10 +1,12 @@
-const { GraphQLServer } = require('graphql-yoga')
+require("dotenv").config();
+const { GraphQLServer, PubSub } = require('graphql-yoga')
 const { join } = require('path')
 const { makeSchema, objectType, idArg, stringArg } = require('@prisma/nexus')
 const Photon = require('@generated/photon')
 const { nexusPrismaPlugin } = require('@generated/nexus-prisma')
 
 const photon = new Photon()
+const pubsub = new PubSub()
 
 const nexusPrisma = nexusPrismaPlugin({
   photon: ctx => ctx.photon,
@@ -111,29 +113,46 @@ const Mutation = objectType({
         id: idArg(),
       },
       resolve: (parent, { id }, ctx) => {
-        return ctx.photon.posts.update({
+        const post = ctx.photon.posts.update({
           where: { id },
           data: { published: true },
         })
+        ctx.pubsub.publish("PUBLISHED_POST", {
+          publishedPost: post
+        });
+        return post
       },
     })
   },
 })
 
+const Subscription = objectType({
+	name: "Subscription",
+	definition(t) {
+		t.field("publishedPost", {
+			type: "Post",
+			subscribe: (parent, args, ctx) => {
+        console.log("TCL: definition -> parent, args, ctx", parent, args, ctx)
+				return ctx.pubsub.asyncIterator("PUBLISHED_POST");
+			}
+		});
+	}
+});
+
 const schema = makeSchema({
-  types: [Query, Mutation, Post, User, nexusPrisma],
-  outputs: {
-    schema: join(__dirname, '/schema.graphql'),
-  },
-  typegenAutoConfig: {
-    sources: [
-      {
-        source: '@generated/photon',
-        alias: 'photon',
-      },
-    ],
-  },
-})
+	types: [Query, Mutation, Subscription, Post, User, nexusPrisma],
+	outputs: {
+		schema: join(__dirname, "/schema.graphql")
+	},
+	typegenAutoConfig: {
+		sources: [
+			{
+				source: "@generated/photon",
+				alias: "photon"
+			}
+		]
+	}
+});
 
 const server = new GraphQLServer({
   schema,
@@ -141,9 +160,10 @@ const server = new GraphQLServer({
     return {
       ...request,
       photon,
+      pubsub
     }
   },
 })
 
-server.start(() => console.log(`🚀 Server ready at http://localhost:4000x`))
+server.start(() => console.log(`🚀 Server ready at http://localhost:4000`))
 module.exports = { User, Post }

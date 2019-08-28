@@ -4,6 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "@prisma/nexus": "^0.0.1",
+    "dotenv": "^8.1.0",
     "graphql-yoga": "^1.16.1"
   },
   "scripts": {
@@ -12,8 +13,8 @@
     "postinstall": "prisma2 generate && prisma2 lift up"
   },
   "devDependencies": {
-    "graphql": "^0.13.0",
-    "prisma2": "^2.0.0-preview-7",
+    "graphql": "^14.5.3",
+    "prisma2": "^2.0.0-preview-8",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
   }
