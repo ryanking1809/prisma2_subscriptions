@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { GraphQLServer, PubSub } = require('graphql-yoga')
+const { GraphQLServer, PubSub, withFilter } = require('graphql-yoga')
 const { join } = require('path')
 const { makeSchema, objectType, idArg, stringArg } = require('@prisma/nexus')
 const Photon = require('@generated/photon')
@@ -30,9 +30,10 @@ const Post = objectType({
     t.model.id()
     t.model.title()
     t.model.content()
-    // t.model.createdAt()
-    // t.model.updatedAt()
+    t.model.createdAt()
+    t.model.updatedAt()
     t.model.published()
+    t.model.author()
   },
 })
 
@@ -98,11 +99,12 @@ const Mutation = objectType({
             title,
             content,
             published: false,
-            // author: {
-            //   connect: { email: authorEmail },
-            // },
+            author: {
+              connect: { email: authorEmail }
+            }
           },
-        })
+          include: { author: true }
+        });
       },
     })
 
@@ -112,11 +114,12 @@ const Mutation = objectType({
       args: {
         id: idArg(),
       },
-      resolve: (parent, { id }, ctx) => {
-        const post = ctx.photon.posts.update({
+      resolve: async (parent, { id }, ctx) => {
+        const post = await ctx.photon.posts.update({
           where: { id },
           data: { published: true },
-        })
+          include: { author: true }
+        });
         ctx.pubsub.publish("PUBLISHED_POST", {
           publishedPost: post
         });
@@ -131,11 +134,19 @@ const Subscription = objectType({
 	definition(t) {
 		t.field("publishedPost", {
 			type: "Post",
-			subscribe: (parent, args, ctx) => {
-        console.log("TCL: definition -> parent, args, ctx", parent, args, ctx)
-				return ctx.pubsub.asyncIterator("PUBLISHED_POST");
-			}
+			subscribe: (parent, args, ctx) =>
+				ctx.pubsub.asyncIterator("PUBLISHED_POST")
 		});
+    t.field("publishedPostWithEmail", {
+      type: "Post",
+      args: {
+        authorEmail: stringArg({ required: false })
+      },
+      subscribe: withFilter(
+        (parent, { authorEmail }, ctx) => ctx.pubsub.asyncIterator("PUBLISHED_POST"),
+        (payload, { authorEmail }) => true
+      )
+    });
 	}
 });
 

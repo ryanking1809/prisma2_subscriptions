@@ -13,10 +13,13 @@ type Mutation {
 }
 
 type Post {
+  author: User
   content: String
+  createdAt: DateTime!
   id: ID!
   published: Boolean!
   title: String!
+  updatedAt: DateTime!
 }
 
 input PostCreateManyWithoutPostsInput {
@@ -59,6 +62,7 @@ input RoleWhereUniqueInput {
 
 type Subscription {
   publishedPost: Post!
+  publishedPostWithEmail(authorEmail: String): Post!
 }
 
 type User {
