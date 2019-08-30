@@ -61,8 +61,7 @@ input RoleWhereUniqueInput {
 }
 
 type Subscription {
-  publishedPost: Post!
-  publishedPostWithEmail(authorEmail: String): Post!
+  publishedPost(authorEmail: String): Post!
 }
 
 type User {

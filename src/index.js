@@ -134,19 +134,15 @@ const Subscription = objectType({
 	definition(t) {
 		t.field("publishedPost", {
 			type: "Post",
-			subscribe: (parent, args, ctx) =>
-				ctx.pubsub.asyncIterator("PUBLISHED_POST")
+			args: {
+				authorEmail: stringArg({ required: false })
+			},
+			subscribe: withFilter(
+				(parent, { authorEmail }, ctx) =>
+					ctx.pubsub.asyncIterator("PUBLISHED_POST"),
+				(payload, { authorEmail }) => payload.publishedPost.author.email === authorEmail
+			)
 		});
-    t.field("publishedPostWithEmail", {
-      type: "Post",
-      args: {
-        authorEmail: stringArg({ required: false })
-      },
-      subscribe: withFilter(
-        (parent, { authorEmail }, ctx) => ctx.pubsub.asyncIterator("PUBLISHED_POST"),
-        (payload, { authorEmail }) => true
-      )
-    });
 	}
 });
 
