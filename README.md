@@ -4,49 +4,82 @@ Example subscriptions based off the prisma2 boilerplate and Ben Awad's video tut
 
 ## How to use
 
-Make sure you set up a postgres database and update the environment variables in the first.
 ```
-yarn start
 yarn install
+yarn start
 -> open localhost:4000
 ```
 
-### 1. Subscribe to new published posts
+### 1. Create User
 
 ```graphql
-subscription {
-  publishedPost {
-    title,
-    content,
-    published
+mutation{
+  signupUser(data: {
+    email: "prisma@subscriptions.com",
+    name: "Prisma Sub"
+  }) {
+    email
   }
 }
 ```
 
-### 2. Create new draft post
+### 2. Create New Post
 
 ```graphql
 mutation {
   createDraft(
-    title: "Prisma Pubsub", 
-    content: "Subscriptions be working!"
+    title: "Prisma Subscriptions", 
+    content: "Subscriptions are working!"
     authorEmail: "prisma@subscriptions.com"
   ) {
     id,
-    title
+    title,
+    author {
+      email
+    }
   }
 }
 # {
 #   "data": {
 #     "createDraft": {
 #       "id": "cjzvn2ckk0000sos951nxi6q1",
-#       "title": "Prisma Pubsub"
+#       "title": "Prisma Subscriptions"
 #     }
 #   }
 # }
 ```
 
-### 3. Publish draft post
+### 3. Subscribe to Published Posts
+
+```graphql
+subscription {
+  publishedPost {
+    title,
+    content,
+    published,
+    author {
+      email
+    }
+  }
+}
+```
+
+OR filter by email
+
+```graphql
+subscription(authorEmail: "prisma@subscriptions.com") {
+  publishedPost {
+    title,
+    content,
+    published,
+    author {
+      email
+    }
+  }
+}
+```
+
+### 4. Publish Draft Post (From Step 2)
 
 ```graphql
 # Make sure to use id from step 2
@@ -62,21 +95,24 @@ mutation {
 #   "data": {
 #     "publish": {
 #       "id": "cjzvn2ckk0000sos951nxi6q1",
-#       "title": "Prisma Pubsub"
+#       "title": "Prisma Subscriptions"
 #     }
 #   }
 # }
 ```
 
-### 4. See the results in your subscription
+### 5. See the results in your subscription!!!
 
 ```graphql
 # {
 #   "data": {
 #     "publishedPost": {
-#       "title": "Prisma Pubsub",
-#       "content": "Subscriptions be working!",
-#       "published": true
+#       "title": "Prisma Subscriptions",
+#       "content": "Subscriptions are working!",
+#       "published": true,
+#       "author": {
+#         "email": "prisma@subscriptions.com"
+#       }
 #     }
 #   }
 # }
