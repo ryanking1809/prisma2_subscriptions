@@ -117,3 +117,6 @@ mutation {
 #   }
 # }
 ```
+
+## Are your subscriptions returning `"data": null` ?
+This might help https://github.com/prisma/prisma2/issues/454
